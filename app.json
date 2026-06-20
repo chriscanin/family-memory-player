@@ -8,7 +8,14 @@
     "scheme": "familymemoryplayer",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "supportsTablet": true,
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "audio"
+        ]
+      },
+      "bundleIdentifier": "com.chriscanin.family-memory-player"
     },
     "android": {
       "adaptiveIcon": {
@@ -17,13 +24,15 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.chriscanin.familymemoryplayer"
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "@react-native-tvos/config-tv",
       "expo-router",
       [
         "expo-splash-screen",
@@ -33,6 +42,12 @@
             "image": "./assets/images/splash-icon.png",
             "imageWidth": 76
           }
+        }
+      ],
+      [
+        "expo-video",
+        {
+          "supportsPictureInPicture": true
         }
       ]
     ],

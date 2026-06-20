@@ -1,5 +1,17 @@
 {
   "enabledPlugins": {
     "expo@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc:*)",
+      "Bash(npx jest:*)",
+      "Bash(npm test:*)",
+      "Bash(npx expo export:*)",
+      "Bash(npx expo run:ios:*)",
+      "Bash(npx expo run:android:*)",
+      "Bash(npx expo prebuild:*)",
+      "Bash(xcrun simctl:*)"
+    ]
   }
 }
