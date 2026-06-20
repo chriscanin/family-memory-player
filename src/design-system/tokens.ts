@@ -64,6 +64,9 @@ export const type = {
 export const metrics = {
   isTV: IS_TV,
   screenPad: IS_TV ? spacing.xxxl : spacing.lg,
+  /** Vertical TV overscan. tvOS reports a safe area, but Android TV does not,
+   * so we pad explicitly on TV instead of relying on safe-area insets. */
+  overscanY: IS_TV ? 44 : 0,
   railGap: IS_TV ? spacing.xl : spacing.md,
   /** Fixed card width used in horizontal rails / swimlanes. */
   cardWidth: IS_TV ? 296 : 168,

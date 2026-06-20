@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, TVFocusGuideView, View } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 
 import { formatDuration, type VideoMemory } from '@/core';
 import { resolveAsset } from '@/data/assetMap';
-import { AppText, Badge, FocusablePressable, palette, radius, spacing } from '@/design-system';
+import { AppText, Badge, FocusablePressable, metrics, palette, radius, spacing } from '@/design-system';
 import { IS_TV } from '@/platform/tv';
 
 import { ControlButton } from './ControlButton';
@@ -14,6 +14,11 @@ import { usePlaybackState } from './usePlaybackState';
 /** PiP is an iOS-handheld feature. On tvOS `Platform.OS` is also 'ios', so the
  * TV guard is essential here. */
 const CAN_PIP = !IS_TV && Platform.OS === 'ios';
+
+// On TV, each control row is its own focus guide with autoFocus, so moving the
+// d-pad up/down between rows lands on the nearest item without needing columns
+// to line up — and focus can never fall into the gap between rows.
+const FocusRow: ComponentType<any> = IS_TV ? TVFocusGuideView : View;
 
 export function VideoPlayer({ memory }: { memory: VideoMemory }) {
   const source = useMemo(() => resolveAsset(memory.assetURL), [memory.assetURL]);
@@ -84,6 +89,7 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
       {controlsVisible ? (
         <View style={styles.controls} pointerEvents="box-none">
           {memory.chapters?.length ? (
+            <FocusRow autoFocus={IS_TV}>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -106,6 +112,7 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
                 </FocusablePressable>
               ))}
             </ScrollView>
+            </FocusRow>
           ) : null}
 
           <View style={styles.scrubRow}>
@@ -135,7 +142,7 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
             </AppText>
           </View>
 
-          <View style={styles.transport}>
+          <FocusRow style={styles.transport} autoFocus={IS_TV}>
             <View style={styles.transportPrimary}>
               <ControlButton glyph="«10" label="Back 10 seconds" onPress={() => { seekTo(currentTime - 10); reveal(); }} />
               <ControlButton
@@ -152,7 +159,7 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
                 <ControlButton glyph="⧉" label="Picture in Picture" onPress={() => view.current?.startPictureInPicture()} />
               </View>
             ) : null}
-          </View>
+          </FocusRow>
         </View>
       ) : null}
     </View>
@@ -166,9 +173,9 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: metrics.isTV ? metrics.screenPad : spacing.lg,
     paddingTop: spacing.xl,
-    paddingBottom: spacing.xl,
+    paddingBottom: metrics.isTV ? metrics.overscanY : spacing.xl,
     gap: spacing.md,
     backgroundColor: palette.controlScrim,
   },

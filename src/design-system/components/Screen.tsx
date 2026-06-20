@@ -24,7 +24,14 @@ export function Screen({
   contentContainerStyle,
   style,
 }: ScreenProps) {
-  const pad = padded ? { paddingHorizontal: metrics.screenPad } : null;
+  const pad = padded
+    ? {
+        paddingHorizontal: metrics.screenPad,
+        // TV overscan top/bottom (no-op on handheld where overscanY is 0).
+        paddingTop: metrics.overscanY,
+        paddingBottom: metrics.overscanY,
+      }
+    : null;
 
   return (
     <View style={[styles.root, style]}>

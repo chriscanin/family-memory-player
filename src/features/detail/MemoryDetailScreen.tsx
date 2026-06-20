@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { formatRecordedDate, isVideo } from '@/core';
 import { memoriesById } from '@/data/library';
-import { AppText, FocusablePressable, palette, radius, spacing } from '@/design-system';
+import { AppText, FocusablePressable, metrics, palette, radius, spacing } from '@/design-system';
 import { IS_TV } from '@/platform/tv';
 import { useRecentlyViewed } from '@/state/recentlyViewedStore';
 
@@ -45,12 +45,19 @@ export function MemoryDetailScreen({ id }: { id: string }) {
   // so the d-pad can never strand focus in empty space: there is always a
   // focusable target, and navigating up from the controls reaches Back.
   const Root: ComponentType<any> = IS_TV ? TVFocusGuideView : View;
+  // The Back bar is its own focus guide on TV so the d-pad can always reach it
+  // (autoFocus lands here when navigating up out of the player controls).
+  const TopBar: ComponentType<any> = IS_TV ? TVFocusGuideView : SafeAreaView;
 
   return (
     <Root style={styles.root} autoFocus={IS_TV}>
       {video ? <VideoPlayer memory={memory} /> : <PhotoViewer memory={memory} />}
 
-      <SafeAreaView style={styles.topBar} pointerEvents="box-none" edges={['top']}>
+      <TopBar
+        style={styles.topBar}
+        pointerEvents="box-none"
+        {...(IS_TV ? { autoFocus: true } : { edges: ['top'] })}
+      >
         <FocusablePressable
           onPress={() => router.back()}
           hasTVPreferredFocus={!video && IS_TV}
@@ -70,7 +77,7 @@ export function MemoryDetailScreen({ id }: { id: string }) {
             {formatRecordedDate(memory.dateRecorded)} · {video ? 'Video' : 'Photo'}
           </AppText>
         </View>
-      </SafeAreaView>
+      </TopBar>
     </Root>
   );
 }
@@ -86,8 +93,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.md,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
+    paddingHorizontal: metrics.isTV ? metrics.screenPad : spacing.lg,
+    paddingTop: metrics.isTV ? metrics.overscanY : spacing.sm,
+    paddingBottom: spacing.sm,
   },
   back: {
     paddingHorizontal: spacing.md,
