@@ -1,0 +1,55 @@
+{
+  "memories": [
+    {
+      "id": "mem-001",
+      "type": "video",
+      "title": "Beach day, summer 2008",
+      "dateRecorded": "2008-08-15",
+      "dateDigitized": "2024-02-10",
+      "assetURL": "beach-day-2008.mp4",
+      "duration": 15.6,
+      "chapters": [
+        { "title": "Walking down", "startTime": 0 },
+        { "title": "Into the water", "startTime": 6 },
+        { "title": "Heading home", "startTime": 12 }
+      ]
+    },
+    {
+      "id": "mem-002",
+      "type": "photo",
+      "title": "Grandma's 80th",
+      "dateRecorded": "2015-04-22",
+      "dateDigitized": "2024-02-10",
+      "assetURL": "grandma-80th.jpg"
+    },
+    {
+      "id": "mem-003",
+      "type": "video",
+      "title": "Dad's camping trip, 1996",
+      "dateRecorded": "1996-07-04",
+      "dateDigitized": "2024-02-10",
+      "assetURL": "camping-1996.mp4",
+      "duration": 10.2,
+      "chapters": [
+        { "title": "Setting up camp", "startTime": 0 },
+        { "title": "By the fire", "startTime": 5 }
+      ]
+    },
+    {
+      "id": "mem-004",
+      "type": "photo",
+      "title": "First birthday",
+      "dateRecorded": "2011-09-03",
+      "dateDigitized": "2024-02-10",
+      "assetURL": "first-birthday.jpg"
+    },
+    {
+      "id": "mem-005",
+      "type": "photo",
+      "title": "Family reunion",
+      "dateRecorded": "1998-06-20",
+      "dateDigitized": "2024-02-10",
+      "assetURL": "family-reunion.jpg"
+    }
+  ]
+}
