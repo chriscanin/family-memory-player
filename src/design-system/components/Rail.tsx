@@ -1,16 +1,10 @@
-import { type ComponentType } from 'react';
-import { FlatList, TVFocusGuideView, View, type ListRenderItem } from 'react-native';
+import { FlatList, View, type ListRenderItem } from 'react-native';
 
 import type { Memory } from '@/core';
-import { IS_TV } from '@/platform/tv';
 
 import { metrics, spacing } from '../tokens';
 import { MemoryCard } from './MemoryCard';
 import { SectionHeader } from './SectionHeader';
-
-// On TV the rail is a focus guide with autoFocus, so moving up/down between
-// rails lands on the nearest card instead of stranding focus between them.
-const FocusRail: ComponentType<any> = IS_TV ? TVFocusGuideView : View;
 
 interface RailProps {
   title: string;
@@ -38,16 +32,24 @@ export function Rail({ title, subtitle, memories, onSelect, preferFirstFocus = f
   return (
     <View>
       <SectionHeader title={title} subtitle={subtitle} />
-      <FocusRail autoFocus={IS_TV}>
+      {/* Full-bleed: cancel the screen's horizontal padding so a focused card at
+          the edge can scale up without the list frame clipping it ("black bar").
+          The inset is reapplied as content padding, and extra vertical padding
+          leaves room for the focus scale. */}
+      <View style={{ marginHorizontal: -metrics.screenPad }}>
         <FlatList
           horizontal
           data={memories}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: metrics.railGap, paddingVertical: spacing.sm }}
+          contentContainerStyle={{
+            gap: metrics.railGap,
+            paddingHorizontal: metrics.screenPad,
+            paddingVertical: metrics.isTV ? spacing.lg : spacing.sm,
+          }}
         />
-      </FocusRail>
+      </View>
     </View>
   );
 }

@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, TVFocusGuideView, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 
 import { formatDuration, type VideoMemory } from '@/core';
@@ -14,11 +14,6 @@ import { usePlaybackState } from './usePlaybackState';
 /** PiP is an iOS-handheld feature. On tvOS `Platform.OS` is also 'ios', so the
  * TV guard is essential here. */
 const CAN_PIP = !IS_TV && Platform.OS === 'ios';
-
-// On TV, each control row is its own focus guide with autoFocus, so moving the
-// d-pad up/down between rows lands on the nearest item without needing columns
-// to line up — and focus can never fall into the gap between rows.
-const FocusRow: ComponentType<any> = IS_TV ? TVFocusGuideView : View;
 
 export function VideoPlayer({ memory }: { memory: VideoMemory }) {
   const source = useMemo(() => resolveAsset(memory.assetURL), [memory.assetURL]);
@@ -88,8 +83,11 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
 
       {controlsVisible ? (
         <View style={styles.controls} pointerEvents="box-none">
+          {/* Plain rows of focusable items. The tvOS focus engine navigates
+              between them by geometry; the Back button (top bar) is reached via
+              the top focus guide's `destinations`. No per-row autoFocus guides —
+              autoFocus re-captures focus and traps it inside the row. */}
           {memory.chapters?.length ? (
-            <FocusRow autoFocus={IS_TV}>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -112,7 +110,6 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
                 </FocusablePressable>
               ))}
             </ScrollView>
-            </FocusRow>
           ) : null}
 
           <View style={styles.scrubRow}>
@@ -142,7 +139,7 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
             </AppText>
           </View>
 
-          <FocusRow style={styles.transport} autoFocus={IS_TV}>
+          <View style={styles.transport}>
             <View style={styles.transportPrimary}>
               <ControlButton glyph="«10" label="Back 10 seconds" onPress={() => { seekTo(currentTime - 10); reveal(); }} />
               <ControlButton
@@ -159,7 +156,7 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
                 <ControlButton glyph="⧉" label="Picture in Picture" onPress={() => view.current?.startPictureInPicture()} />
               </View>
             ) : null}
-          </FocusRow>
+          </View>
         </View>
       ) : null}
     </View>
@@ -183,8 +180,7 @@ const styles = StyleSheet.create({
   scrubRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   scrubber: { flex: 1 },
   // Primary controls are centered on every surface; the secondary group (PiP,
-  // iOS only) floats to the right so it never pulls the main controls off-center
-  // (on TV there is no secondary group, so the transport stays truly centered).
+  // iOS only) floats to the right so it never pulls the main controls off-center.
   transport: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
   transportPrimary: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   transportSecondary: { position: 'absolute', right: 0, top: 0, bottom: 0, justifyContent: 'center' },
