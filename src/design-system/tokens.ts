@@ -1,10 +1,11 @@
 /**
  * Design tokens — the single vocabulary every component speaks.
  *
- * One warm, cinematic dark theme: family media (often faded, warm-toned) reads
- * better against near-black than against white, and a dark 10-foot UI is easier
- * on the eyes across a living room. Type and spacing scale up on TV so the same
- * components stay legible at couch distance from one set of tokens.
+ * Legacybox-themed dark cinema experience: warm, nostalgic palette that honors
+ * family memories while maintaining dark 10-foot TV readability. Teal accent
+ * (heritage/trust) replaces amber; navy secondary element adds sophistication.
+ * Type and spacing scale up on TV so the same components stay legible at couch
+ * distance from one set of tokens.
  */
 import { IS_TV } from '@/platform/tv';
 
@@ -15,14 +16,17 @@ export const palette = {
   surface: '#171320',
   surfaceHi: '#221B2E',
   line: '#2C2436',
-  text: '#F4EFE8',
-  textMuted: '#A99FB1',
-  textFaint: '#6F6679',
-  /** Warm amber — the "film/nostalgia" accent. */
-  accent: '#E8B04B',
-  accentInk: '#1B1305',
-  /** Focus ring on TV. */
-  focus: '#FFFFFF',
+  text: '#F5F1ED',
+  textMuted: '#B8AFA8',
+  textFaint: '#7D7570',
+  /** Legacybox teal — heritage, trust, preservation. */
+  accent: '#17A697',
+  accentInk: '#0A3433',
+  /** Navy blue — secondary accent, focus indicators. */
+  navy: '#1B3B5F',
+  navyLight: '#3D5F8F',
+  /** Focus ring on TV — teal for Legacybox aesthetic. */
+  focus: '#17A697',
   scrim: 'rgba(8,6,12,0.78)',
   // Detail / player surfaces.
   playerBg: '#000000',

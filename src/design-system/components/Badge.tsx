@@ -3,7 +3,7 @@ import { StyleSheet, View, type ViewStyle } from 'react-native';
 import { palette, radius, spacing } from '../tokens';
 import { AppText } from './Text';
 
-type Tone = 'video' | 'neutral' | 'scrim';
+type Tone = 'video' | 'photo' | 'neutral' | 'scrim';
 
 interface BadgeProps {
   label: string;
@@ -13,6 +13,7 @@ interface BadgeProps {
 
 const TONES: Record<Tone, { bg: string; fg: string }> = {
   video: { bg: palette.accent, fg: palette.accentInk },
+  photo: { bg: palette.navy, fg: palette.text },
   neutral: { bg: palette.surfaceHi, fg: palette.text },
   scrim: { bg: palette.scrim, fg: palette.text },
 };

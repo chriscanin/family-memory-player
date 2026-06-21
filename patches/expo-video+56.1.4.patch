@@ -1,0 +1,22 @@
+diff --git a/node_modules/expo-video/ios/VideoView.swift b/node_modules/expo-video/ios/VideoView.swift
+index 3f285fb..6fbbb6f 100644
+--- a/node_modules/expo-video/ios/VideoView.swift
++++ b/node_modules/expo-video/ios/VideoView.swift
+@@ -61,6 +61,17 @@ public final class VideoView: ExpoView, AVPlayerViewControllerDelegate {
+ 
+     addFirstFrameObserver()
+     addSubview(playerViewController.view)
++
++    // tvOS: the embedded AVPlayerViewController is focusable by default and
++    // absorbs the focus engine's directional search, so a React-Native d-pad UI
++    // layered over the video can't move focus across the video's area (e.g. up
++    // from the controls to a Back button). With RN driving all controls
++    // (nativeControls is false here), the video is purely presentational — make
++    // it non-interactive so it leaves the focus system and the search passes
++    // through to the RN focusables above it.
++    #if os(tvOS)
++    playerViewController.view.isUserInteractionEnabled = false
++    #endif
+   }
+ 
+   deinit {

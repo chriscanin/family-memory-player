@@ -35,6 +35,28 @@ add UI:
   feature (Picture-in-Picture, pinch-zoom) on `Platform.OS` alone — also gate on
   `!IS_TV`. (`CAN_PIP` in `VideoPlayer.tsx` is the reference example.)
 
+### tvOS focus invariants (the video-player focus model — hard-won, don't regress)
+
+The player's controls (bottom) and Back button (top-left) are separated by a
+focus *void* — the full-screen video. Getting the d-pad across it took two fixes;
+both are load-bearing. See `.agent/specs/atdd/EVIDENCE.md` for the full story.
+
+- **expo-video's `VideoView` absorbs the focus search on tvOS.** Its native
+  `AVPlayerViewController` is focusable by default and eats the directional
+  search, so focus can't cross the video. The fix is **native** —
+  `patches/expo-video+56.1.4.patch` sets `isUserInteractionEnabled = false` on
+  tvOS. **Don't drop this patch**, and don't expect any RN prop to fix it from JS.
+- **Bridge a focus void with `autoFocus` guides, not `destinations`/`nextFocus*`.**
+  On this stack (RN-tvos 0.85 + Fabric + Reanimated-wrapped focusables) the
+  tag-based redirects resolve through `findNodeHandle`/`viewWithTag:` and were
+  verified **not** to move focus across the gap. `autoFocus` (an attractor) is
+  the mechanism that works.
+- **An `autoFocus` guide traps the reverse direction**, so bridging a gap both
+  ways needs **two** of them — here, the top bar (Up→Back) and the controls
+  cluster (Down→controls) in `MemoryDetailScreen.tsx`/`VideoPlayer.tsx`. The
+  **root** stays `trapFocus*`-only with **no** `autoFocus` (a root attractor
+  re-homes Back and strands it — that was the bug).
+
 ## Commands
 
 ```bash

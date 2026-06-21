@@ -1,4 +1,4 @@
-import { useEffect, useState, type ComponentType } from 'react';
+import { useEffect, type ComponentType } from 'react';
 import { StyleSheet, TVFocusGuideView, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,11 +16,6 @@ export function MemoryDetailScreen({ id }: { id: string }) {
   const router = useRouter();
   const memory = memoriesById.get(id);
   const record = useRecentlyViewed((s) => s.recordView);
-
-  // The Back button registers itself (via a callback ref) as the destination of
-  // the top focus guide, so pressing UP from anywhere in the player controls
-  // sends focus to Back — across the video gap — without trapping it.
-  const [backNode, setBackNode] = useState<unknown>(null);
 
   useEffect(() => {
     if (memory) record(memory.id);
@@ -44,21 +39,22 @@ export function MemoryDetailScreen({ id }: { id: string }) {
 
   const video = isVideo(memory);
 
-  // TV focus model:
+  // TV focus model — the player's controls sit at the bottom and Back sits
+  // top-left, separated by a focus void (the full-screen video). tvOS's focus
+  // engine won't cross that void by geometry, so we bridge it with two
+  // `autoFocus` focus guides (attractors), which — unlike tag-based
+  // `destinations`/`nextFocus` — reliably pull focus across the gap on Fabric:
   // - Root traps focus on all sides → focus can never leave the screen (it is
-  //   structurally impossible to lose).
-  // - The top bar is a focus guide whose `destinations` is the Back button, so
-  //   navigating up from the controls always lands on (and highlights) Back.
-  // - Inside the player, rows are plain (no autoFocus guides), so the engine can
-  //   move between them and out to the top bar freely.
+  //   structurally impossible to lose). It is NOT autoFocus: a root attractor
+  //   re-homes to Back and strands it (the original "can't go down" bug).
+  // - The top bar is an autoFocus guide: an upward search from the controls is
+  //   attracted here and homes onto its only focusable child, Back.
+  // - The controls cluster is itself an autoFocus guide (see VideoPlayer): a
+  //   downward search from Back is attracted there and homes onto a control.
+  //   Each guide only attracts focus *entering* it, so neither direction traps.
   const Root: ComponentType<any> = IS_TV ? TVFocusGuideView : View;
   const rootProps = IS_TV
     ? {
-        // autoFocus makes this guide ACTIVE (isTVSelectable). Without it the
-        // trapFocus props are inert and focus can be lost. On the root, autoFocus
-        // only re-homes focus that would otherwise escape the whole screen — it
-        // does NOT trap navigation between children (that was the per-row bug).
-        autoFocus: true,
         trapFocusUp: true,
         trapFocusDown: true,
         trapFocusLeft: true,
@@ -66,9 +62,7 @@ export function MemoryDetailScreen({ id }: { id: string }) {
       }
     : {};
   const TopBar: ComponentType<any> = IS_TV ? TVFocusGuideView : SafeAreaView;
-  const topBarProps = IS_TV
-    ? { destinations: backNode ? [backNode] : undefined }
-    : { edges: ['top'] as const };
+  const topBarProps = IS_TV ? { autoFocus: true } : { edges: ['top'] as const };
 
   return (
     <Root style={styles.root} {...rootProps}>
@@ -76,7 +70,6 @@ export function MemoryDetailScreen({ id }: { id: string }) {
 
       <TopBar style={styles.topBar} pointerEvents="box-none" {...topBarProps}>
         <FocusablePressable
-          ref={setBackNode}
           onPress={() => router.back()}
           hasTVPreferredFocus={!video && IS_TV}
           ring={{ color: palette.focus, radius: radius.pill }}
@@ -88,6 +81,9 @@ export function MemoryDetailScreen({ id }: { id: string }) {
           </AppText>
         </FocusablePressable>
         <View style={styles.titleWrap}>
+          <AppText variant="heading" color={palette.accent} numberOfLines={1}>
+            Preserved by Legacybox
+          </AppText>
           <AppText variant="heading" color={palette.text} numberOfLines={1}>
             {memory.title}
           </AppText>

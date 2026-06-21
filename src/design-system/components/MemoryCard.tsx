@@ -49,7 +49,7 @@ export function MemoryCard({ memory, onPress, width = metrics.cardWidth, hasTVPr
               transition={180}
             />
             <View style={styles.topRow}>
-              <Badge label={video ? 'VIDEO' : 'PHOTO'} tone={video ? 'video' : 'scrim'} />
+              <Badge label={video ? 'VIDEO' : 'PHOTO'} tone={video ? 'video' : 'photo'} />
               {video ? <Badge label={formatDuration(memory.duration)} tone="scrim" /> : null}
             </View>
             {video ? (

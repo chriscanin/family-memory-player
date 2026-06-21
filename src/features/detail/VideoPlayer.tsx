@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState, type ComponentType } from 'react';
+import { Platform, Pressable, ScrollView, StyleSheet, TVFocusGuideView, View } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 
 import { formatDuration, type VideoMemory } from '@/core';
@@ -32,6 +32,16 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
   };
   const togglePlay = () => (isPlaying ? player.pause() : player.play());
 
+  // On TV the controls cluster is an autoFocus focus guide: a downward d-pad
+  // search from the Back button (across the full-screen video gap) is attracted
+  // here and homes onto a control, which is how Back returns focus to the player.
+  // It only attracts focus *entering* it, so vertical navigation between the rows
+  // inside — and the upward exit back to Back — is unaffected. On handheld it's a
+  // plain View. (The matching upward bridge is the top bar's autoFocus guide in
+  // MemoryDetailScreen.)
+  const Controls: ComponentType<any> = IS_TV ? TVFocusGuideView : View;
+  const controlsProps = IS_TV ? { autoFocus: true } : {};
+
   const scheduleHide = () => {
     if (IS_TV) return; // TV always shows controls — focus needs a target.
     if (hideTimer.current) clearTimeout(hideTimer.current);
@@ -59,57 +69,83 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
     return index;
   }, [memory.chapters, currentTime]);
 
+  const chapterChips = memory.chapters?.map((chapter, i) => (
+    <FocusablePressable
+      key={`${chapter.title}-${chapter.startTime}`}
+      onPress={() => {
+        seekTo(chapter.startTime);
+        reveal();
+      }}
+      ring={{ color: palette.focus, radius: radius.pill }}
+      accessibilityLabel={`Chapter: ${chapter.title}`}
+    >
+      <Badge
+        label={`${chapter.title} · ${formatDuration(chapter.startTime)}`}
+        tone={i === activeChapter ? 'video' : 'scrim'}
+      />
+    </FocusablePressable>
+  ));
+
+  const videoView = (
+    <VideoView
+      ref={view}
+      player={player}
+      style={StyleSheet.absoluteFill}
+      contentFit="contain"
+      nativeControls={false}
+      allowsPictureInPicture={CAN_PIP}
+      startsPictureInPictureAutomatically={false}
+    />
+  );
+
   return (
     <View style={styles.container}>
-      <Pressable
-        style={StyleSheet.absoluteFill}
-        focusable={!IS_TV}
-        onPress={() => {
-          if (IS_TV) return; // TV keeps controls up; the d-pad needs a focus target.
-          if (controlsVisible) setControlsVisible(false);
-          else reveal();
-        }}
-      >
-        <VideoView
-          ref={view}
-          player={player}
+      {/* On TV the video is wrapped in a `pointerEvents="none"` layer. The
+          native AVPlayerViewController behind expo-video's VideoView is focusable
+          on tvOS and absorbs the d-pad's directional search, stranding focus in
+          the controls (it can't travel up to Back). A non-interactive wrapper
+          takes the whole native subtree out of the focus system while keeping it
+          visible. Handheld keeps the tap-to-toggle Pressable instead. */}
+      {IS_TV ? (
+        <View pointerEvents="none" style={StyleSheet.absoluteFill}>
+          {videoView}
+        </View>
+      ) : (
+        <Pressable
           style={StyleSheet.absoluteFill}
-          contentFit="contain"
-          nativeControls={false}
-          allowsPictureInPicture={CAN_PIP}
-          startsPictureInPictureAutomatically={false}
-        />
-      </Pressable>
+          onPress={() => {
+            if (controlsVisible) setControlsVisible(false);
+            else reveal();
+          }}
+        >
+          {videoView}
+        </Pressable>
+      )}
 
       {controlsVisible ? (
-        <View style={styles.controls} pointerEvents="box-none">
-          {/* Plain rows of focusable items. The tvOS focus engine navigates
-              between them by geometry; the Back button (top bar) is reached via
-              the top focus guide's `destinations`. No per-row autoFocus guides —
-              autoFocus re-captures focus and traps it inside the row. */}
+        <Controls style={styles.controls} pointerEvents="box-none" {...controlsProps}>
+          {/* Plain rows of focusable items; the tvOS focus engine navigates
+              between them by geometry. The cluster's own autoFocus guide (see
+              `Controls` above) only attracts focus *arriving* from Back, so it
+              doesn't trap movement between the rows or the upward exit to Back. */}
           {memory.chapters?.length ? (
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={styles.chapters}
-            >
-              {memory.chapters.map((chapter, i) => (
-                <FocusablePressable
-                  key={`${chapter.title}-${chapter.startTime}`}
-                  onPress={() => {
-                    seekTo(chapter.startTime);
-                    reveal();
-                  }}
-                  ring={{ color: palette.focus, radius: radius.pill }}
-                  accessibilityLabel={`Chapter: ${chapter.title}`}
-                >
-                  <Badge
-                    label={`${chapter.title} · ${formatDuration(chapter.startTime)}`}
-                    tone={i === activeChapter ? 'video' : 'scrim'}
-                  />
-                </FocusablePressable>
-              ))}
-            </ScrollView>
+            // On TV the chapters render in a plain centered row, NOT a
+            // horizontal ScrollView: on tvOS a ScrollView traps directional
+            // focus — you can enter it from below but can't navigate up out of
+            // it, which strands focus on the chapters. A plain View lets the
+            // focus engine move up to the Back button freely. (Handheld keeps
+            // the ScrollView so long chapter lists stay swipeable.)
+            IS_TV ? (
+              <View style={styles.chaptersRowTV}>{chapterChips}</View>
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.chapters}
+              >
+                {chapterChips}
+              </ScrollView>
+            )
           ) : null}
 
           <View style={styles.scrubRow}>
@@ -157,7 +193,7 @@ export function VideoPlayer({ memory }: { memory: VideoMemory }) {
               </View>
             ) : null}
           </View>
-        </View>
+        </Controls>
       ) : null}
     </View>
   );
@@ -177,6 +213,15 @@ const styles = StyleSheet.create({
     backgroundColor: palette.controlScrim,
   },
   chapters: { gap: spacing.sm, paddingVertical: spacing.xs },
+  // TV: a plain centered row (no ScrollView) so a chapter chip sits directly
+  // above the centered transport and the focus engine moves Pause↔chapter —
+  // and chapter↑Back — by geometry alone.
+  chaptersRowTV: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: spacing.sm,
+    paddingVertical: spacing.xs,
+  },
   scrubRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
   scrubber: { flex: 1 },
   // Primary controls are centered on every surface; the secondary group (PiP,

@@ -21,8 +21,8 @@ tags:
     text: "Chapter:.*"
     focused: true
 
-# Up again routes to the top-left Back button (across the video gap, via the
-# top bar's TVFocusGuideView `destinations`).
+# Up again routes to the top-left Back button (across the video gap, pulled there
+# by the top bar's autoFocus focus guide).
 - pressKey: "Remote Dpad Up"
 - assertVisible:
     text: "Back to library"
@@ -33,4 +33,12 @@ tags:
 - pressKey: "Remote Dpad Up"
 - assertVisible:
     text: "Back to library"
+    focused: true
+
+# Down from Back must return across the video gap to a control — pulled there by
+# the controls cluster's autoFocus guide. This is the "can't navigate down from
+# Back" regression: a single (top-only) attractor traps focus on Back forever.
+- pressKey: "Remote Dpad Down"
+- assertVisible:
+    text: "Chapter:.*"
     focused: true

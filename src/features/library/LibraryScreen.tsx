@@ -16,6 +16,9 @@ export function LibraryScreen() {
   const hydrated = useRecentlyViewed((s) => s.hydrated);
   const recents = useMemo(() => recentMemories(history, memoriesById), [history]);
 
+  const videoCount = memories.filter((m) => m.type === 'video').length;
+  const photoCount = memories.filter((m) => m.type === 'photo').length;
+
   const open = (memory: Memory) =>
     router.push({ pathname: '/memory/[id]', params: { id: memory.id } });
 
@@ -23,8 +26,11 @@ export function LibraryScreen() {
     <Screen scroll padded edges={IS_TV ? ['top', 'bottom', 'left', 'right'] : ['top']}>
       <View style={styles.header}>
         <AppText variant="display">Family Memories</AppText>
+        <AppText variant="heading" color={palette.accent}>
+          Preserved by Legacybox
+        </AppText>
         <AppText variant="body" color={palette.textMuted}>
-          {memories.length} memories digitized by Legacybox
+          {memories.length} memories · {videoCount} videos · {photoCount} photos
         </AppText>
       </View>
 
