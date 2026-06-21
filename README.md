@@ -142,3 +142,11 @@ reviewed/verified everything; Claude did most of the typing.
 `npx jest` — 19 tests over the recently-viewed rules (dedupe, cap at 5, ordering,
 immutability) and formatting. The recently-viewed reducer is pure precisely so it
 can be tested exhaustively without a renderer.
+
+`maestro/tv-focus.yaml` — an end-to-end **TV focus** test (Maestro) that drives
+the Android TV d-pad and asserts the real `focused` flag at each step: the player
+controls are reachable, up-from-chapters lands on the top-left Back, and focus is
+**trapped to the screen so it can never be lost**. The focus code is the same
+react-native-tvos on Apple TV, so this guards both TV surfaces. (Maestro can only
+drive Android TV's remote, not tvOS's — so the Android TV emulator is the harness
+for the shared focus logic.)
