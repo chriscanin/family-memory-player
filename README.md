@@ -17,6 +17,8 @@ Four surfaces, one codebase:
 - **Apple TV** and **Android TV** — the same screens adapted to a 10-foot,
   d-pad-navigable UI (focus engine, swimlanes, a collapsible nav rail).
 
+- NOTE: Please keep in mind that ios simulators do not support picture in picture mode (most of the time), so if there are any issues using PiP on the mobile device, you will need to sign the ios package with a developer account (in xcworkspace signing and capabilities section), and install the app to a real device. Android PiP should work on the emulator. PiP is not enabled for television devices.
+
 `src/core/tv.ts` (`IS_TV`) is the single branch point; everything else is shared.
 
 ## Running it
