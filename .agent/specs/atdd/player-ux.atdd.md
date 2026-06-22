@@ -8,7 +8,7 @@
 >
 > **Hard precondition:** the focus model from
 > [`tv-player-focus.atdd.md`](tv-player-focus.atdd.md) is sacred. Every change
-> here must keep `maestro/tv-focus.yaml` exiting 0. Where this spec moves the
+> here must keep `src/core/e2e/tv-focus.yaml` exiting 0. Where this spec moves the
 > chapters or changes layout, it **extends** that flow; it never weakens it.
 
 ## 1. Problem Statement
@@ -52,7 +52,7 @@ and a graceful end-of-video replay — all with smooth (not janky) transitions,
 
 * **Runtime/frameworks:** as in spec 0 — Expo SDK 56, `react-native-tvos@0.85.3-2`
   (Fabric/New Arch, React Compiler on), expo-video ~56.1.4, reanimated 4,
-  gesture-handler 2.31. Surface gate is `IS_TV` (`src/platform/tv.ts`); on tvOS
+  gesture-handler 2.31. Surface gate is `IS_TV` (`src/core/tv.ts`); on tvOS
   `Platform.OS === 'ios'`.
 * **Design vocabulary:** components speak **only** in tokens
   (`src/design-system/tokens.ts`): `palette`, `spacing` (xs4…xxxl48),
@@ -94,7 +94,7 @@ and a graceful end-of-video replay — all with smooth (not janky) transitions,
   * `src/features/detail/MemoryDetailScreen.tsx` (title scrim; participates in
     auto-hide — the top bar fades with the controls)
   * `src/design-system/tokens.ts` (new scrim/gradient tokens only)
-  * `maestro/tv-focus.yaml` (extend for the moved chapters + hidden-state focus)
+  * `src/core/e2e/tv-focus.yaml` (extend for the moved chapters + hidden-state focus)
 * **Out of scope:** PhotoViewer, the library, routing, favorites, auth. Don't
   restructure navigation here.
 
@@ -191,7 +191,7 @@ and a graceful end-of-video replay — all with smooth (not janky) transitions,
 - [ ] A gradient/scrim sits behind the bottom controls **and** the top title bar;
       both are legible over light and dark footage (Scenarios 1, 3, screenshots
       attached to the PR).
-- [ ] Chapter chips are **left-aligned** on TV, and `maestro/tv-focus.yaml`
+- [ ] Chapter chips are **left-aligned** on TV, and `src/core/e2e/tv-focus.yaml`
       passes unchanged-or-extended (Scenario 2).
 - [ ] Auto-hide works on **both** surfaces (Scenarios 4, 5). On TV the hidden
       state owns exactly one focus target and any d-pad press reveals + restores
@@ -205,7 +205,7 @@ and a graceful end-of-video replay — all with smooth (not janky) transitions,
       (Scenario 7). `usePlaybackState` surfaces an `ended` flag from the player's
       status/end event (not a `currentTime` heuristic).
 - [ ] **Spec-0 invariant intact:** Scenario 8 holds — exactly one focused element
-      after every press, in every new state. `maestro/tv-focus.yaml` exits 0,
+      after every press, in every new state. `src/core/e2e/tv-focus.yaml` exits 0,
       extended to cover the hidden→reveal transition.
 - [ ] No new hardcoded colors/sizes — new scrim/gradient values live in
       `tokens.ts`. At most one new dependency beyond `@expo/vector-icons`
@@ -219,10 +219,10 @@ and a graceful end-of-video replay — all with smooth (not janky) transitions,
 ```bash
 # TV focus (the load-bearing invariant) — must exit 0, extended for left chapters
 # + the hidden→reveal focus transition (Scenarios 2, 5, 8).
-maestro --device <android-tv> test maestro/tv-focus.yaml
+maestro --device <android-tv> test src/core/e2e/tv-focus.yaml
 
 # Handheld auto-hide + reveal + replay (Scenarios 4, 6, 7) — a new flow.
-maestro --device <ios-or-android> test maestro/player-ux.yaml   # author this
+maestro --device <ios-or-android> test src/core/e2e/player-ux.yaml   # author this
 
 # Verification gates.
 npx tsc --noEmit && npx jest && npx expo export --platform ios
@@ -263,4 +263,4 @@ npx tsc --noEmit && npx jest && npx expo export --platform ios
 * **Keep authoring and review separate** (AGENTS.md): a reviewer/verifier pass
   confirms the focus oracle and screenshots — don't self-approve.
 * **Scope discipline:** `git diff --stat` should show only the in-scope files
-  (+ the new `maestro/player-ux.yaml`). Revert any drift into navigation/library.
+  (+ the new `src/core/e2e/player-ux.yaml`). Revert any drift into navigation/library.

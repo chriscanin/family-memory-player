@@ -1,0 +1,58 @@
+appId: com.chriscanin.familymemoryplayer
+name: TV player focus — controls reachable, focus is never lost
+tags:
+  - tv
+# Drives the Android TV d-pad and asserts the real `focused` flag at each step.
+# The focus model is identical react-native-tvos code on Apple TV, so this guards
+# both TV surfaces. Run with: maestro --device <android-tv> test maestro/tv-focus.yaml
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+
+# Open a video (videos have chapters + a transport row).
+- tapOn:
+    text: "Beach day, summer 2008, video"
+- waitForAnimationToEnd
+
+# NOTE: the chrome now auto-hides during playback; while hidden, a full-screen
+# reveal catcher owns focus and ANY d-pad press reveals the controls (focus
+# returns to play/pause). Maestro presses fire faster than the hide timeout, so
+# the controls stay up across this flow.
+
+# Initial focus is the play/pause control. Up first reaches the full-width
+# focusable scrub bar (it bridges the centered transport to the left chapters).
+- pressKey: "Remote Dpad Up"
+- assertVisible:
+    text: "Scrub bar"
+    focused: true
+
+# Up again reaches a chapter chip (left-aligned, reachable via the scrubber).
+- pressKey: "Remote Dpad Up"
+- assertVisible:
+    text: "Chapter:.*"
+    focused: true
+
+# Up again routes to the top-left Back button (across the video gap, pulled there
+# by the top bar's autoFocus focus guide).
+- pressKey: "Remote Dpad Up"
+- assertVisible:
+    text: "Back to library"
+    focused: true
+
+# At the top edge focus is trapped — pressing Up keeps focus on Back (it can
+# never be lost). This is the regression that kept biting us.
+- pressKey: "Remote Dpad Up"
+- assertVisible:
+    text: "Back to library"
+    focused: true
+
+# Down from Back returns across the video gap to a control — pulled there by the
+# controls cluster's autoFocus guide, which homes onto play/pause. Pressing Up
+# from there reaches the scrub bar again, proving the cluster is re-entered (not
+# stranded on Back). This is the "can't navigate down from Back" regression guard.
+- pressKey: "Remote Dpad Down"
+- pressKey: "Remote Dpad Up"
+- assertVisible:
+    text: "Scrub bar"
+    focused: true

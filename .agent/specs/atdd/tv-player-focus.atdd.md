@@ -128,10 +128,10 @@
 ## 4. Definition of Done (DoD)
 
 - [ ] Scenarios 1-7 are implemented as automated steps in
-      `maestro/tv-focus.yaml` (extending the existing flow), driving the Android
+      `src/core/e2e/tv-focus.yaml` (extending the existing flow), driving the Android
       TV emulator and asserting the real `focused` flag at each step.
-- [ ] `maestro/tv-focus.yaml` **passes** end-to-end on the Android TV emulator
-      (`maestro --device <android-tv> test maestro/tv-focus.yaml`, or via the
+- [ ] `src/core/e2e/tv-focus.yaml` **passes** end-to-end on the Android TV emulator
+      (`maestro --device <android-tv> test src/core/e2e/tv-focus.yaml`, or via the
       Maestro MCP `run` with a booted Android TV `device_id`).
 - [ ] The bug in Scenario 2 / Scenario 7 is gone: there is no d-pad sequence on
       the video player screen that yields zero focused elements.
@@ -148,7 +148,7 @@
 ```
 # Android TV emulator must be booted first (the shared focus code is identical
 # on tvOS, which Maestro cannot drive — Android TV is the automated harness).
-maestro test maestro/tv-focus.yaml
+maestro test src/core/e2e/tv-focus.yaml
 ```
 
 The flow encodes Scenarios 2-5 and 7 today (open video → Up → chapter focused →

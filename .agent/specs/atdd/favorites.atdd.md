@@ -17,7 +17,7 @@
   `src/state/recentlyViewedStore.ts` (Zustand + persist over AsyncStorage, key
   `legacybox.recently-viewed.v1`, partializes only `history`, sets `hydrated` on
   rehydrate). Memories are `Memory` objects (`src/core/types.ts`) keyed by `id`,
-  indexed in `src/data/library.ts` (`memoriesById`).
+  indexed in `src/core/data/library.ts` (`memoriesById`).
 * **The Gap:** there is **no way to favorite a memory** and **no Favorites
   collection**. The nav shell (spec 2) stands up a Favorites tab, but it's an
   empty placeholder. Users need to (a) toggle any memory as a favorite from the
@@ -80,7 +80,7 @@
   * `src/design-system/components/FavoriteButton.tsx` (**new** shared toggle)
   * `src/features/detail/MemoryDetailScreen.tsx` (top-bar favorite control)
   * `src/features/favorites/FavoritesScreen.tsx` (fills the spec-2 placeholder)
-  * `maestro/favorites.yaml` (**new**); `tv-focus.yaml` extended
+  * `src/core/e2e/favorites.yaml` (**new**); `tv-focus.yaml` extended
 * **Out of scope:** syncing favorites to the Clerk user (future), reordering,
   collections/playlists. The nav shell itself (spec 2).
 
@@ -151,7 +151,7 @@
 - [ ] The **Favorites tab** lists favorites newest-first with a live update and a
       friendly empty state (Scenario 3), reusing `MemoryCard`.
 - [ ] `npx tsc --noEmit` clean, `npx jest` green (incl. new favorites tests),
-      `npx expo export --platform ios` clean. `maestro/tv-focus.yaml` exits 0.
+      `npx expo export --platform ios` clean. `src/core/e2e/tv-focus.yaml` exits 0.
 
 ## 5. Executable Validation (the oracle)
 
@@ -159,10 +159,10 @@
 npx jest src/core/__tests__/favorites.test.ts   # pure toggle/order/resolve logic
 
 # Handheld: card toggle + tab listing + relaunch persistence.
-maestro --device <ios-or-android> test maestro/favorites.yaml
+maestro --device <ios-or-android> test src/core/e2e/favorites.yaml
 
 # TV: focus-safe top-bar toggle (extends the spec-0 invariant).
-maestro --device <android-tv> test maestro/tv-focus.yaml
+maestro --device <android-tv> test src/core/e2e/tv-focus.yaml
 
 npx tsc --noEmit && npx jest && npx expo export --platform ios
 ```

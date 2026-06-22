@@ -18,7 +18,7 @@ marks it done.
 
 Spec 0 is the focus model we already fixed and is the **load-bearing
 invariant** every other spec must preserve. When a later spec changes the
-player layout (spec 1) or adds a navigation region (spec 2), `maestro/tv-focus.yaml`
+player layout (spec 1) or adds a navigation region (spec 2), `src/core/e2e/tv-focus.yaml`
 must still pass — extend it, never weaken it.
 
 ## Product decisions (settled — don't re-litigate)
@@ -83,6 +83,6 @@ Per `AGENTS.md`:
 1. `npx tsc --noEmit` clean.
 2. `npx jest` green.
 3. `npx expo export --platform ios` bundles with no errors.
-4. `maestro/tv-focus.yaml` still **exits 0** on Android TV (the focus invariant
+4. `src/core/e2e/tv-focus.yaml` still **exits 0** on Android TV (the focus invariant
    is never allowed to regress).
 5. Verify on a real surface (simulator screenshot / focus log), don't assert.

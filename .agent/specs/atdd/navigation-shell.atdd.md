@@ -10,7 +10,7 @@
 > **Hard precondition:** the player detail screen
 > ([`tv-player-focus.atdd.md`](tv-player-focus.atdd.md)) keeps its focus model and
 > renders **full-screen, above the nav** (no tab bar / rail over the player).
-> `maestro/tv-focus.yaml` must still exit 0.
+> `src/core/e2e/tv-focus.yaml` must still exit 0.
 
 ## 1. Problem Statement
 
@@ -100,7 +100,7 @@
   * `src/features/profile/ProfileScreen.tsx` (**new** placeholder; spec 4)
   * `src/design-system/components/` — a new `TabBar` (handheld) and `NavRail` (TV)
     component pair, token-driven, focus-aware
-  * `maestro/` — a new `navigation.yaml`; `tv-focus.yaml` re-run unchanged
+  * `src/core/e2e/` — a new `navigation.yaml`; `tv-focus.yaml` re-run unchanged
 * **Out of scope:** the *contents* of Favorites (spec 3) and Profile (spec 4) —
   here they're reachable placeholders. The player's internals (spec 1). The intro
   (spec 4).
@@ -145,7 +145,7 @@
 * **Given:** any section on TV.
 * **When:** the user opens a video and runs the spec-0 traversal (Up→chapter→Back,
   Down→control, edge traps).
-* **Then:** `maestro/tv-focus.yaml` passes **unchanged** — the player renders over
+* **Then:** `src/core/e2e/tv-focus.yaml` passes **unchanged** — the player renders over
   the shell with no rail, and its two `autoFocus` bridges + root trap behave
   exactly as before. Back from the player returns to the originating section.
 
@@ -173,7 +173,7 @@
 - [ ] **No new navigation dependency** — handheld uses expo-router `Tabs`; the TV
       rail is built from `FocusablePressable`/`TVFocusGuideView`. Any cross-region
       focus bridge uses `autoFocus` (attractor), never `nextFocus*`/`destinations`.
-- [ ] `maestro/tv-focus.yaml` exits 0 **unchanged** — the player's spec-0 focus
+- [ ] `src/core/e2e/tv-focus.yaml` exits 0 **unchanged** — the player's spec-0 focus
       model is untouched (Scenario 5).
 - [ ] Favorites and Profile are reachable **shells** (placeholder screens) so the
       shell is independently verifiable before specs 3/4 fill them.
@@ -184,11 +184,11 @@
 
 ```bash
 # New: nav shell — tabs (handheld) and rail focus (TV).
-maestro --device <ios-or-android> test maestro/navigation.yaml   # author this
-maestro --device <android-tv>     test maestro/navigation.yaml   # TV rail focus
+maestro --device <ios-or-android> test src/core/e2e/navigation.yaml   # author this
+maestro --device <android-tv>     test src/core/e2e/navigation.yaml   # TV rail focus
 
 # The load-bearing player focus invariant — must pass UNCHANGED.
-maestro --device <android-tv> test maestro/tv-focus.yaml
+maestro --device <android-tv> test src/core/e2e/tv-focus.yaml
 
 npx tsc --noEmit && npx jest && npx expo export --platform ios
 ```

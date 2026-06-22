@@ -114,7 +114,7 @@ flag per node. Assertions are on that flag, never on pixels:
   react-native-tvos on tvOS, so Android TV is the automated harness; Apple TV is
   the same code path + manual confirm.
 
-Existing harness: `maestro/tv-focus.yaml` (Scenarios 2-5, 7 partial).
+Existing harness: `src/core/e2e/tv-focus.yaml` (Scenarios 2-5, 7 partial).
 
 ## Root-cause hypothesis (1-2 sentences) — SUPERSEDED, see below
 

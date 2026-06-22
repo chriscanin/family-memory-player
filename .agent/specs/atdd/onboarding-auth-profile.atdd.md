@@ -95,7 +95,7 @@
     guest vs. signed-in vs. TV-guest)
   * `src/state/` — a tiny `introStore`/flag; an `useAuthState()` wrapper
   * `src/design-system/` — any new profile/auth UI primitives (token-driven)
-  * `maestro/onboarding.yaml` (**new**, handheld); `tv-focus.yaml` re-run
+  * `src/core/e2e/onboarding.yaml` (**new**, handheld); `tv-focus.yaml` re-run
 * **Out of scope:** syncing favorites to the user (spec 3 keeps them local),
   social graph, account settings beyond sign-out, password reset flows beyond what
   Clerk provides out of the box, **full TV auth** (explicitly excluded).
@@ -153,7 +153,7 @@
 * **When:** any d-pad sequence runs through the (auth-button-free) intro and the
   TV Profile guest panel.
 * **Then:** after **every** press, **exactly one** element is focused — never
-  zero. `maestro/tv-focus.yaml` (player) still exits 0. *(Spec-0 invariant
+  zero. `src/core/e2e/tv-focus.yaml` (player) still exits 0. *(Spec-0 invariant
   extended to onboarding/profile.)*
 
 ## 4. Definition of Done (DoD)
@@ -175,17 +175,17 @@
 - [ ] The agent did **not** create the Clerk account or enter credentials; the
       publishable key is supplied by a human via env (no hardcoded/invented key).
 - [ ] `npx tsc --noEmit` clean, `npx jest` green, `npx expo export --platform ios`
-      clean. `maestro/tv-focus.yaml` exits 0. No regression to guest usage.
+      clean. `src/core/e2e/tv-focus.yaml` exits 0. No regression to guest usage.
 
 ## 5. Executable Validation (the oracle)
 
 ```bash
 # Handheld: intro-once + guest path + profile states (live sign-in done by a human).
-maestro --device <ios-or-android> test maestro/onboarding.yaml
+maestro --device <ios-or-android> test src/core/e2e/onboarding.yaml
 
 # TV: guest-only, no auth code, focus never lost.
-maestro --device <android-tv> test maestro/onboarding.yaml
-maestro --device <android-tv> test maestro/tv-focus.yaml   # player invariant intact
+maestro --device <android-tv> test src/core/e2e/onboarding.yaml
+maestro --device <android-tv> test src/core/e2e/tv-focus.yaml   # player invariant intact
 
 npx tsc --noEmit && npx jest && npx expo export --platform ios
 ```

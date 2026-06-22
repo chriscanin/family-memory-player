@@ -1,0 +1,29 @@
+appId: com.chriscanin.family-memory-player
+name: Onboarding — intro plays once, guest-first (never walled)
+tags:
+  - handheld
+# Touch flow on an iOS sim / Android phone. (On TV the intro auto-advances and
+# there is no sign-in — that surface is guest-only by design.)
+---
+# First launch: the branded intro, then a guest-first call to action.
+- launchApp:
+    clearState: true
+- assertVisible: "Preserved by Legacybox"
+- assertVisible: "Get started"
+- tapOn: "Get started"
+- assertVisible: "Family Memories"
+
+# A guest can use every section — nothing is walled.
+- assertVisible:
+    text: "Home, tab.*"
+- tapOn:
+    text: "Favorites, tab.*"
+- assertVisible: "Favorites"
+- tapOn:
+    text: "Profile, tab.*"
+- assertVisible: "Guest"
+
+# Relaunching does NOT replay the intro (the "seen" flag persists).
+- launchApp
+- assertVisible: "Family Memories"
+- assertNotVisible: "Get started"

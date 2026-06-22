@@ -1,0 +1,36 @@
+appId: com.chriscanin.family-memory-player
+name: Favorites — toggle from detail, appears in the Favorites tab
+tags:
+  - handheld
+# Touch flow on an iOS sim / Android phone. The card heart is nested inside the
+# card's accessibility group, so this drives the standalone detail-screen toggle
+# (the cross-surface favorite control); the card hearts share the same store.
+---
+- launchApp:
+    clearState: true
+- waitForAnimationToEnd
+# clearState resets the first-run intro — dismiss it into the app (guest).
+- tapOn: "Get started"
+
+# Open a memory and favorite it from the detail top bar.
+- tapOn:
+    text: "Grandma's 80th, photo"
+    index: 0
+- assertVisible: "Add to favorites"
+- tapOn: "Add to favorites"
+- assertVisible: "Remove from favorites"
+- tapOn: "Back to library"
+
+# It now appears in the Favorites tab with a count.
+- tapOn:
+    text: "Favorites, tab.*"
+- assertVisible:
+    text: "Grandma's 80th, photo"
+- assertVisible: "1 favorite"
+
+# Un-favoriting empties the tab.
+- tapOn:
+    text: "Grandma's 80th, photo"
+- tapOn: "Remove from favorites"
+- tapOn: "Back to library"
+- assertVisible: "No favorites yet"
